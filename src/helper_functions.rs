@@ -1,21 +1,30 @@
-pub fn visualize_code(code: &Vec<Vec<bool>>) {
+pub fn visualize_code(code: &Vec<Vec<bool>>, color: bool) {
     let dimension = code.len();
-    print!(" ");
-    for _ in 0..dimension+2 {
-        print!("-");
+    // println!("abcd");
+    for _ in 0..(dimension+2)/2 {
+        print!("━━┄┄");
     }
     println!();
-    for line in code {
+    for (l, line) in code.iter().enumerate() {
         for (col, pixel) in line.iter().enumerate() {
-            if col == 0 { print!("| "); }
-            print!("{}", if *pixel { "▉" } else { " " });
+            if col == 0 { print!("{}", if l % 2 == 0 { "\\ " } else { "/ "}); }
+            if color {
+                if col >= dimension - 2 && l >= dimension - 2 {
+                    print!("\x1b[101m");
+                } else if col >= dimension - 2 && l >= dimension - 2 - 4 {
+                    print!("\x1b[104m");
+                } else if (col + 1) % 4 <= 1 && !((l < 9 && (col < 9 || col >= code.len() - 8) || (l >= code.len() - 8 && col < 9)) || (col > code.len() - 7 - 3 && col < code.len() - 4 && l > code.len() - 7 - 3 && l < code.len() - 4) || (l == 6 || col == 6)) {
+                    print!("\x1b[37m");
+                }
+            }
+            print!("{}\x1b[0m", if *pixel { "▉▉" } else { "  " });
         }
-        print!(" |");
+        print!("{}", if l % 2 == 0 { " ┃" } else { " ┊" });
         println!();
     }
-    print!(" ");
-    for _ in 0..dimension+2 {
-        print!("-");
+    // print!("  ");
+    for _ in 0..(dimension+2)/2 {
+        print!("  ~~");
     }
     println!();
 }
