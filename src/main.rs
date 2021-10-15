@@ -40,6 +40,62 @@ fn main() {
     run_decoding_algorithm(&code);
 }
 
+fn codeword_trail(dimension: usize) -> Vec<(usize, usize)> {
+    let mut trail: Vec<(usize, usize)> = Vec::new();
+    let check = |x: usize, y: usize| {
+        let finder_patterns = y < 9 && (x < 9 || x >= dimension - 8) || (y >= dimension - 8 && x < 9);
+        let small_finder_pattern = x > dimension - 7 - 3 && x < dimension - 4 && y > dimension - 7 - 3 && y < dimension - 4;
+        let dots = y == 6 || x == 6;
+
+        if finder_patterns || small_finder_pattern || dots {
+            return false;
+        }
+        return true;
+    };
+    for x in (7..dimension).step_by(2).rev() {
+        if x % 4 == 1 {
+            let range = 0..dimension;
+            for y in range {
+                if !check(x, y) { continue; }
+                if check(x + 1, y) { trail.push((x + 1, y)); }
+                trail.push((x, y));
+            }
+        } else {
+            let range = (0..dimension).rev();
+            for y in range {
+                if !check(x, y) { continue; }
+                if check(x + 1, y) { trail.push((x + 1, y)); }
+                trail.push((x, y));
+            }
+        }
+    }
+    for x in (0..5).step_by(2).rev() {
+        if x % 4 == 0 {
+            let range = 0..dimension;
+            for y in range {
+                if !check(x, y) { continue; }
+                if check(x + 1, y) { trail.push((x + 1, y)); }
+                trail.push((x, y));
+            }
+        } else {
+            let range = (0..dimension).rev();
+            for y in range {
+                if !check(x, y) { continue; }
+                if check(x + 1, y) { trail.push((x + 1, y)); }
+                trail.push((x, y));
+            }
+        }
+    }
+    trail.remove(0);
+    trail.remove(0);
+    trail.remove(0);
+    trail.remove(0);
+    for (x, y) in trail.iter() {
+        println!("({}, {})", x, y);
+    }
+    trail
+}
+
 fn run_decoding_algorithm(code: &Vec<Vec<bool>>) {
     let check = check_finder_patterns(code);
     println!("Check {}", check);
@@ -47,6 +103,8 @@ fn run_decoding_algorithm(code: &Vec<Vec<bool>>) {
     // println!("{:?}", get_mask_pattern(&code));
     let unmasked_code = remove_mask(&code, get_mask_pattern(&code));
     visualize_code(&unmasked_code, true);
+    read_codewords(&unmasked_code);
+    visualize_trail(&unmasked_code, codeword_trail(code.len()));
 }
 
 fn check_finder_patterns(code: &Vec<Vec<bool>>) -> bool {
@@ -138,4 +196,76 @@ fn remove_mask(code: &Vec<Vec<bool>>, mask: impl Fn(&Vec<Vec<bool>>, usize, usiz
         }
     }
     unmasked_code
+}
+
+fn read_codewords(code: &Vec<Vec<bool>>) {
+    println!("{}", decode_codeword(&code, code.len()-2, code.len()-10, CodewordType::Up));
+    println!("{}", decode_codeword(&code, code.len()-2, code.len()-14, CodewordType::Up));
+    println!("{}", decode_codeword(&code, code.len()-2, code.len()-18, CodewordType::Up));
+
+    println!("{}", decode_codeword(&code, code.len()-4, code.len()-20, CodewordType::LeftDown));
+
+    println!("{}", decode_codeword(&code, code.len()-4, code.len()-18, CodewordType::Down));
+    println!("{}", decode_codeword(&code, code.len()-4, code.len()-14, CodewordType::Down));
+    println!("{}", decode_codeword(&code, code.len()-4, code.len()-10, CodewordType::Down));
+    println!("{}", decode_codeword(&code, code.len()-4, code.len()-6, CodewordType::Down));
+    println!("{}", decode_codeword(&code, code.len()-6, code.len()-2, CodewordType::LeftUp));
+
+
+}
+
+enum CodewordType {
+    Up, LeftDown, LeftUp, Down
+}
+fn decode_codeword(codeword: &Vec<Vec<bool>>, x: usize, y: usize, codeword_type: CodewordType) -> u32 {
+    let mut value: u32 = 0;
+
+    match codeword_type {
+        CodewordType::Up => { println!("Up");
+            if codeword[y + 0][x + 0] { value += (2 as u32).pow(0); }
+            if codeword[y + 0][x + 1] { value += (2 as u32).pow(1); }
+            if codeword[y + 1][x + 0] { value += (2 as u32).pow(2); }
+            if codeword[y + 1][x + 1] { value += (2 as u32).pow(3); }
+            if codeword[y + 2][x + 0] { value += (2 as u32).pow(4); }
+            if codeword[y + 2][x + 1] { value += (2 as u32).pow(5); }
+            if codeword[y + 3][x + 0] { value += (2 as u32).pow(6); }
+            if codeword[y + 3][x + 1] { value += (2 as u32).pow(7); }
+        },
+
+        CodewordType::Down => { println!("Down");
+            if codeword[y + 3][x + 0] { value += (2 as u32).pow(0); }
+            if codeword[y + 3][x + 1] { value += (2 as u32).pow(1); }
+            if codeword[y + 2][x + 0] { value += (2 as u32).pow(2); }
+            if codeword[y + 2][x + 1] { value += (2 as u32).pow(3); }
+            if codeword[y + 1][x + 0] { value += (2 as u32).pow(4); }
+            if codeword[y + 1][x + 1] { value += (2 as u32).pow(5); }
+            if codeword[y + 0][x + 0] { value += (2 as u32).pow(6); }
+            if codeword[y + 0][x + 1] { value += (2 as u32).pow(7); }
+        },
+
+        CodewordType::LeftDown => { println!("Left");
+            if codeword[y + 1][x + 0] { value += (2 as u32).pow(0); }
+            if codeword[y + 1][x + 1] { value += (2 as u32).pow(1); }
+            if codeword[y + 0][x + 0] { value += (2 as u32).pow(2); }
+            if codeword[y + 0][x + 1] { value += (2 as u32).pow(3); }
+            if codeword[y + 0][x + 2] { value += (2 as u32).pow(4); }
+            if codeword[y + 0][x + 3] { value += (2 as u32).pow(5); }
+            if codeword[y + 1][x + 2] { value += (2 as u32).pow(6); }
+            if codeword[y + 1][x + 3] { value += (2 as u32).pow(7); }
+        },
+
+        CodewordType::LeftUp => { println!("Left");
+            if codeword[y + 0][x + 0] { value += (2 as u32).pow(0); }
+            if codeword[y + 0][x + 1] { value += (2 as u32).pow(1); }
+            if codeword[y + 1][x + 0] { value += (2 as u32).pow(2); }
+            if codeword[y + 1][x + 1] { value += (2 as u32).pow(3); }
+            if codeword[y + 1][x + 2] { value += (2 as u32).pow(4); }
+            if codeword[y + 1][x + 3] { value += (2 as u32).pow(5); }
+            if codeword[y + 0][x + 2] { value += (2 as u32).pow(6); }
+            if codeword[y + 0][x + 3] { value += (2 as u32).pow(7); }
+        },
+
+        _ => unimplemented!()
+    }
+    return value;
 }
