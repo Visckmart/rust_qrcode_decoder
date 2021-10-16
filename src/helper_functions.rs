@@ -38,18 +38,18 @@ pub fn visualize_trail(code: &Vec<Vec<bool>>, trail: Vec<(usize, usize)>) {
     let mut count = 0;
     for (l, line) in code.iter().enumerate() {
         for (col, pixel) in line.iter().enumerate() {
-            if col == 0 { print!("{}", if l % 2 == 0 { "\\  " } else { "/  "}); }
+            if col == 0 { print!("{}", if l % 2 == 0 { "\\ " } else { "/ "}); }
             if let Some(x) = trail.iter().position(|&c| c == (col, l)) {
                 // if col % 2 == 1 {print!("\x1b[104m")}
                 let v = 7 - (x%8);
-                if v <= 3 { print!("\x1b[104;97m{:2}\x1b[0m", v); }
+                if !*pixel { print!("\x1b[104;97m{:2}\x1b[0m", v); }
                 else { print!("\x1b[44;97m{:2}\x1b[0m", v); }
                 count += 1;
             } else {
                 print!("{}\x1b[0m", if *pixel { "▉▉" } else { "  " });
             }
         }
-        print!("{}", if l % 2 == 0 { "  ┃" } else { "  ┊" });
+        print!("{}", if l % 2 == 0 { " ┃" } else { " ┊" });
         println!();
     }
     // print!("  ");

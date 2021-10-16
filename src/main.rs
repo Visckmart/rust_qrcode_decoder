@@ -35,7 +35,9 @@ fn main() {
     // 10000010111010001100100100010\
     // 11111110001011111111111010011"));
     // let code = matrix_from_str("1111111011000010011000111111110000010100101011010001000001101110101101111101110010111011011101010001101111000101110110111010101011000010101011101100000100110010101010010000011111111010101010101010111111100000000100101101111000000000011010110001011000100010111110000100100001100111100010101010100010101010100010011111100111100000111100101110111010100111111001111000101001101110100000100000000100010100000010011001111100000101011101001101011010111001011000011100101110000111011101100000110011010010011000000110100011100101101010011001011010010111100001101100101110111110000101010111101100111001001010011111101000000000011111111110110001000011111110111111111010101010001100000100001100011101000101001011101010011111101011111100110111010011001111111100111000101110101010011110111111011011000001010010110111001011100111111110001101110010111111111".to_string());
-    let code = matrix_from_str("1111111010101111001110111111110000010100111001100001000001101110100110000010110010111011011101010111011010000101110110111010011110101101001011101100000100011110110011010000011111111010101010101010111111100000000110010011110100000000101101110111010111110010010110001100010010111001111111001100110010001111001100000001110101101011111000010110110000110000011011000011010000000011001011001001100111101001000101011011111111110000011011000110010110000000011000000001100010011010101000100010110110000010010011010101100001001010001001101011110111101011011100000100000000101100110110101110011001100001111011111111111010000000011101000101010001001111111110101100101101101011110100000101110011010101000100001011101001011001010011111011010111010101101011101110110101101110101010000000010001000011000001000001011000011011101011111110110001000011110100010".to_string());
+    // let code = matrix_from_str("1111111010101111001110111111110000010100111001100001000001101110100110000010110010111011011101010111011010000101110110111010011110101101001011101100000100011110110011010000011111111010101010101010111111100000000110010011110100000000101101110111010111110010010110001100010010111001111111001100110010001111001100000001110101101011111000010110110000110000011011000011010000000011001011001001100111101001000101011011111111110000011011000110010110000000011000000001100010011010101000100010110110000010010011010101100001001010001001101011110111101011011100000100000000101100110110101110011001100001111011111111111010000000011101000101010001001111111110101100101101101011110100000101110011010101000100001011101001011001010011111011010111010101101011101110110101101110101010000000010001000011000001000001011000011011101011111110110001000011110100010".to_string());
+    // let code = matrix_from_str("1111111010101111001110111111110000010100111001100001000001101110100110000010110010111011011101010111011010000101110110111010011110101101001011101100000100011110110011010000011111111010101010101010111111100000000110010011110100000000101101110111010111110010010110001100010010111001111111001100110010001111001100000001110101101011111000010110110000110000011011000011010000000011001011001001100111101001000101011011111111110000011011000110010110000000011000000001100010011010101000100010110110000010010011010101100001001010001001101011110111101011011100000100000000101100110110101110011001100001111011111111111010000000011101000101010001001111111110101100101101101011110100000101110011010101000100001011101001011001010011111011010111010101101011101110110101101110101010000000010001000011000001000001011000011011101011111110110001000011110100010".to_string());
+    let code = matrix_from_str("1111111001000100100110111111110000010110111111000101000001101110100111001000100010111011011101011010111010100101110110111010001010101111101011101100000101010010100000010000011111111010101010101010111111100000000000010010001000000000111110111110111101001101010100001110001000010011111111000110000010010111011100100010100001101011111000100011001110001100111011011111011101010011000101001011010001011111111011100000111100001100101100010000011110100100010101111010101001100011011011100100000000110111110000101001010111111111011000001010101011110000111010010111101110000001010101111000100101111010011001011111111100000000011010000100010001101011111110111010011001101010000100000100111001100011000110011011101010011110010011111010110111010110101001111010001011101110101000001111000111110101000001010000010001011011101011111110111011110101010100100".to_string());
     visualize_code(&code, false);
     run_decoding_algorithm(&code);
 }
@@ -90,9 +92,9 @@ fn codeword_trail(dimension: usize) -> Vec<(usize, usize)> {
     trail.remove(0);
     trail.remove(0);
     trail.remove(0);
-    for (x, y) in trail.iter() {
-        println!("({}, {})", x, y);
-    }
+    // for (x, y) in trail.iter() {
+    //     println!("({}, {})", x, y);
+    // }
     trail
 }
 
@@ -100,11 +102,34 @@ fn run_decoding_algorithm(code: &Vec<Vec<bool>>) {
     let check = check_finder_patterns(code);
     println!("Check {}", check);
     println!("{:?}", get_error_correction_level(&code));
-    // println!("{:?}", get_mask_pattern(&code));
-    let unmasked_code = remove_mask(&code, get_mask_pattern(&code));
+    println!("{:?}", get_mask_pattern(&code));
+    let unmasked_code = remove_mask(&code, get_mask_checker(get_mask_pattern(&code)));
     visualize_code(&unmasked_code, true);
     read_codewords(&unmasked_code);
-    visualize_trail(&unmasked_code, codeword_trail(code.len()));
+    // let unmasked_code = remove_mask(&code, get_mask_checker((true, true, true)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((true, true, false)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((true, false, true)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((true, false, false)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((false, true, true)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((false, true, false)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((false, false, true)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
+    // let unmasked_code = remove_mask(&code, get_mask_checker((false, false, false)));
+    // visualize_code(&unmasked_code, true);
+    // read_codewords(&unmasked_code);
 }
 
 fn check_finder_patterns(code: &Vec<Vec<bool>>) -> bool {
@@ -162,8 +187,12 @@ fn flor(x: usize, y: usize) -> bool               { (x*y)%2 + (x*y)%3 == 0 }
 fn elipses(x: usize, y: usize) -> bool            { ((x * y)%3 + (x * y))%2 == 0 }
 fn faixas_diagonais(x: usize, y: usize) -> bool   { ((x * y)%3 + (x + y))%2 == 0 }
 
-fn get_mask_pattern(code: &Vec<Vec<bool>>) -> impl Fn(&Vec<Vec<bool>>, usize, usize) -> bool {
-    let correct_mask = match (*&code[8][2], *&code[8][3], *&code[8][4]) {
+fn get_mask_pattern(code: &Vec<Vec<bool>>) -> (bool, bool, bool) {
+    (*&code[8][2], *&code[8][3], *&code[8][4])
+}
+
+fn get_mask_checker(pattern: (bool, bool, bool)) -> impl Fn(&Vec<Vec<bool>>, usize, usize) -> bool {
+    let correct_mask = match pattern {
         (true, true, true) => pula_colunas,
         (true, true, false) => diagonais,
         (true, false, true) => quadriculado,
@@ -184,6 +213,7 @@ fn get_mask_pattern(code: &Vec<Vec<bool>>) -> impl Fn(&Vec<Vec<bool>>, usize, us
         }
         correct_mask(x, y)
     }
+
 }
 
 #[allow(unused_variables)]
@@ -199,17 +229,43 @@ fn remove_mask(code: &Vec<Vec<bool>>, mask: impl Fn(&Vec<Vec<bool>>, usize, usiz
 }
 
 fn read_codewords(code: &Vec<Vec<bool>>) {
-    println!("{}", decode_codeword(&code, code.len()-2, code.len()-10, CodewordType::Up));
-    println!("{}", decode_codeword(&code, code.len()-2, code.len()-14, CodewordType::Up));
-    println!("{}", decode_codeword(&code, code.len()-2, code.len()-18, CodewordType::Up));
+    visualize_trail(&code, codeword_trail(code.len()));
 
-    println!("{}", decode_codeword(&code, code.len()-4, code.len()-20, CodewordType::LeftDown));
+    let mut value_list = Vec::new();
+    let mut value = 0;
 
-    println!("{}", decode_codeword(&code, code.len()-4, code.len()-18, CodewordType::Down));
-    println!("{}", decode_codeword(&code, code.len()-4, code.len()-14, CodewordType::Down));
-    println!("{}", decode_codeword(&code, code.len()-4, code.len()-10, CodewordType::Down));
-    println!("{}", decode_codeword(&code, code.len()-4, code.len()-6, CodewordType::Down));
-    println!("{}", decode_codeword(&code, code.len()-6, code.len()-2, CodewordType::LeftUp));
+    for i in 0..codeword_trail(code.len()).len() {
+        let pot = 7 - (i%8);
+        let x = codeword_trail(code.len())[i].0;
+        let y = codeword_trail(code.len())[i].1;
+        if code[y][x] {
+            let v = (2 as u32).pow(pot as u32);
+            value += v;
+        }
+        if pot == 0 {
+            value_list.push(value);
+            value = 0;
+        }
+        // println!("({}, {}) {}", codeword_trail(code.len())[i].0, codeword_trail(code.len())[i].1, 7 - (i%8));
+    }
+    // let indexes = vec![1, 14, 27, 40, 53, 2, 15, 28, 41, 54, 3, 16, 29, 42, 55];
+    let mut c = 0;
+    let total = value_list[0] as usize;
+    for val in &value_list[1..total+1] {
+        print!("{}", String::from((*val as u8) as char));
+        c += 1;
+    }
+    // println!("{}", decode_codeword(&code, code.len()-2, code.len()-10, CodewordType::Up));
+    // println!("{}", decode_codeword(&code, code.len()-2, code.len()-14, CodewordType::Up));
+    // println!("{}", decode_codeword(&code, code.len()-2, code.len()-18, CodewordType::Up));
+    //
+    // println!("{}", decode_codeword(&code, code.len()-4, code.len()-20, CodewordType::LeftDown));
+    //
+    // println!("{}", decode_codeword(&code, code.len()-4, code.len()-18, CodewordType::Down));
+    // println!("{}", decode_codeword(&code, code.len()-4, code.len()-14, CodewordType::Down));
+    // println!("{}", decode_codeword(&code, code.len()-4, code.len()-10, CodewordType::Down));
+    // println!("{}", decode_codeword(&code, code.len()-4, code.len()-6, CodewordType::Down));
+    // println!("{}", decode_codeword(&code, code.len()-6, code.len()-2, CodewordType::LeftUp));
 
 
 }
