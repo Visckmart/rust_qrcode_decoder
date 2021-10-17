@@ -40,6 +40,160 @@ fn main() {
     let code = matrix_from_str("1111111001000100100110111111110000010110111111000101000001101110100111001000100010111011011101011010111010100101110110111010001010101111101011101100000101010010100000010000011111111010101010101010111111100000000000010010001000000000111110111110111101001101010100001110001000010011111111000110000010010111011100100010100001101011111000100011001110001100111011011111011101010011000101001011010001011111111011100000111100001100101100010000011110100100010101111010101001100011011011100100000000110111110000101001010111111111011000001010101011110000111010010111101110000001010101111000100101111010011001011111111100000000011010000100010001101011111110111010011001101010000100000100111001100011000110011011101010011110010011111010110111010110101001111010001011101110101000001111000111110101000001010000010001011011101011111110111011110101010100100".to_string());
     visualize_code(&code, false);
     run_decoding_algorithm(&code);
+    let v1 = vec![6, 22, 38];
+    let combs = comb(&v1, 2);
+    let dimension = 45;
+    let check = |x: usize, y: usize| {
+        let finder_patterns = y < 9 && (x < 9 || x >= dimension - 8) || (y >= dimension - 8 && x < 9);
+        // let small_finder_pattern = x > dimension - 7 - 3 && x < dimension - 4 && y > dimension - 7 - 3 && y < dimension - 4;
+        let dots = y == 6 || x == 6;
+        // println!("\t\t{}, {}\t{}", x, y, finder_patterns);
+        // println!("\t\t{}, {}\t{}", x, y, dots);
+        if finder_patterns {
+            return false;
+        }
+        return true;
+    };
+
+    // for i in v1 {
+    //     println!("({}, {})\t{}", i, i, check(i, i));
+    // }
+    // for (ind, i) in combs.iter().enumerate() {
+    //     // if () {
+    //         println!("({}, {})\t{}", i[0], i[1], check(i[0], i[1]));
+    //     // }
+    //     // if () {
+    //         println!("({}, {})\t{}", i[1], i[0], check(i[1], i[0]));
+    //     // }
+    //     // println!("\t{}", ind);
+    //     // println!("{}\t{}", v1[ind], v1[ind]);
+    //     // for j in i.clone() {
+    //     //     print!("{}\t", j)
+    //     // }
+    //     // println!("{:?}", i);
+    //     // println!();
+    //     // for j in i.iter().rev() {
+    //     //     print!("{}\t", j)
+    //     // }
+    //     // println!();
+    // }
+    // println!("{:?}", get_alignment_patterns());
+}
+
+enum RestrictedArea {
+    FinderPattern, AlignmentPattern, Dots, Outside
+}
+
+fn get_alignment_patterns(version: usize) -> Vec<(usize, usize)> {
+    let alignment_module_coordinates = [
+        vec![6, 18],
+        vec![6, 22],
+        vec![6, 26],
+        vec![6, 30],
+        vec![6, 34],
+        vec![6, 22, 38],
+        vec![6, 24, 42],
+        vec![6, 26, 46],
+        vec![6, 28, 50],
+        vec![6, 30, 54],
+        vec![6, 32, 58],
+        vec![6, 34, 62],
+        vec![6, 26, 46, 66],
+        vec![6, 26, 48, 70],
+        vec![6, 26, 50, 74],
+        vec![6, 30, 54, 78],
+        vec![6, 30, 56, 82],
+        vec![6, 30, 58, 86],
+        vec![6, 34, 62, 90],
+        vec![6, 28, 50, 72, 94],
+        vec![6, 26, 50, 74, 98],
+        vec![6, 30, 54, 78, 102],
+        vec![6, 28, 54, 80, 106],
+        vec![6, 32, 58, 84, 110],
+        vec![6, 30, 58, 86, 114],
+        vec![6, 34, 62, 90, 118],
+        vec![6, 26, 50, 74, 98, 122],
+        vec![6, 30, 54, 78, 102, 126],
+        vec![6, 26, 52, 78, 104, 130],
+        vec![6, 30, 56, 82, 108, 134],
+        vec![6, 34, 60, 86, 112, 138],
+        vec![6, 30, 58, 86, 114, 142],
+        vec![6, 34, 62, 90, 118, 146],
+        vec![6, 30, 54, 78, 102, 126],
+        vec![6, 24, 50, 76, 102, 128],
+        vec![6, 28, 54, 80, 106, 132],
+        vec![6, 32, 58, 84, 110, 136],
+        vec![6, 26, 54, 82, 110, 138],
+        vec![6, 30, 58, 86, 114, 142]];
+
+    let coordinates = alignment_module_coordinates.get(version - 2).unwrap();
+    let coord_combinations = comb(&coordinates, 2);
+    let mut pattern_coordinates = Vec::new();
+    for i in coordinates {
+        pattern_coordinates.push((*i, *i));
+    }
+    for i in coord_combinations {
+        pattern_coordinates.push((*i.get(0).unwrap(), *i.get(1).unwrap()));
+        pattern_coordinates.push((*i.get(1).unwrap(), *i.get(0).unwrap()));
+    }
+
+    let mut finished_coordinates = Vec::new();
+    for coord in pattern_coordinates {
+        for x_offset in -2..=2 {
+            for y_offset in -2..=2 {
+                let x_new = coord.0 as isize;
+                let y_new = coord.0 as isize;
+                finished_coordinates.push(((x_new + x_offset) as usize, (y_new + y_offset) as usize));
+            }
+        }
+    }
+    finished_coordinates
+}
+
+fn is_restricted_position(x: usize, y: usize, dimension: usize) -> Option<RestrictedArea> {
+    if x < 0 || x > dimension || y < 0 || y > dimension {
+        return Some(RestrictedArea::Outside);
+    }
+
+    let in_finder_patterns = (y < 9 && (x < 9 || x >= dimension - 8))
+                             || (y >= dimension - 8 && x < 9);
+    if in_finder_patterns {
+        return Some(RestrictedArea::FinderPattern);
+    }
+
+    let in_dots = x == 6 || y == 6;
+    if in_dots {
+        return Some(RestrictedArea::Dots);
+    }
+    let alignment_patterns = get_alignment_patterns(3);
+    if alignment_patterns.contains(&(x, y)) {
+        return Some(RestrictedArea::AlignmentPattern);
+    }
+    None
+}
+fn comb<T>(slice: &[T], k: usize) -> Vec<Vec<T>>
+    where
+        T: Copy,
+{
+    // If k == 1, return a vector containing a vector for each element of the slice.
+    if k == 1 {
+        return slice.iter().map(|x| vec![*x]).collect::<Vec<Vec<T>>>();
+    }
+    // If k is exactly the slice length, return the slice inside a vector.
+    if k == slice.len() {
+        return vec![slice.to_vec()];
+    }
+
+    // Make a vector from the first element + all combinations of k - 1 elements of the rest of the slice.
+    let mut result = comb(&slice[1..], k - 1)
+        .into_iter()
+        .map(|x| [&slice[..1], x.as_slice()].concat())
+        .collect::<Vec<Vec<T>>>();
+
+    // Extend this last vector with the all the combinations of k elements after from index 1 onward.
+    result.extend(comb(&slice[1..], k));
+    // Return final vector.
+    return result;
 }
 
 fn codeword_trail(dimension: usize) -> Vec<(usize, usize)> {
@@ -68,9 +222,9 @@ fn codeword_trail(dimension: usize) -> Vec<(usize, usize)> {
             };
         for y in y_range {
             // Checar se pode colocar na posição atual, senão pula
-            if !check(x, y) { continue; }
+            if is_restricted_position(x, y, dimension).is_some() { continue; }
             // Checar se pode inserir na posição à direita, se sim, insere
-            if check(x + 1, y) { trail.push((x + 1, y)); }
+            if is_restricted_position(x + 1, y, dimension).is_none() { trail.push((x + 1, y)); }
             // Inserir na posição atual
             trail.push((x, y));
         }
