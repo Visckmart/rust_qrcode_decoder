@@ -14,4 +14,4 @@ Observações:
 Nesta screenshot é possível ver o final de uma execução, com códigos desenhados na tela para melhor entendimento do
 funcionamento do algoritmo e com o conteúdo decodificado escrito em seguida.
 
-![Screenshot de uma execução mostrando uma parte de um código QR e um outro por inteiro, desenhados no terminal com marcações. Ao final está escrito "Tamanho: 47 Conteúdo: Aparentemente o algoritmo funciona corretamente"](Execution_Screenshot.png)
+![Screenshot de uma execução mostrando uma parte de um código QR e um outro por inteiro, desenhados no terminal com marcações. Ao final está escrito "Tamanho: 47 Conteúdo: Aparentemente o algoritmo funciona corretamente"](Execution_screenshot.png)
